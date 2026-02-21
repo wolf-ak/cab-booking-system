@@ -38,3 +38,16 @@ if st.button("Book Cab"):
             st.write(data["booking"])
     else:
         st.error("Booking request failed")
+
+st.subheader("Booking History")
+
+if st.button("Load Bookings"):
+    response = requests.get(f"{BASE_URL}/bookings")
+    if response.status_code == 200:
+        bookings = response.json()
+        if len(bookings) == 0:
+            st.info("No bookings found")
+        else:
+            st.table(bookings)
+    else:
+        st.error("Failed to load booking history")
