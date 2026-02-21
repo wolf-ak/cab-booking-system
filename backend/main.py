@@ -1,3 +1,4 @@
+from models import BookingRequest
 from fastapi import FastAPI
 
 app = FastAPI(title="Cab Booking System API")
@@ -16,3 +17,44 @@ bookings = []
 @app.get("/cabs")
 def get_cabs():
     return cabs
+
+@app.post("/bookings")
+def create_booking(request: BookingRequest):
+
+    cab = None
+
+    # 1. Find the cab by ID
+    for c in cabs:
+        if c["id"] == request.cab_id:
+            cab = c
+            break
+
+    # 2. If cab does not exist
+    if cab is None:
+        return {"error": "Cab not found"}
+
+    # 3. Check for existing active booking (double booking prevention)
+    for booking in bookings:
+        if booking["cab_id"] == request.cab_id and booking["status"] == "active":
+            return {"error": "Cab is already booked"}
+
+    # 4. Create booking
+    booking = {
+        "id": len(bookings) + 1,
+        "cab_id": request.cab_id,
+        "user_name": request.user_name,
+        "status": "active"
+    }
+    bookings.append(booking)
+
+    # 5. Mark cab as unavailable
+    cab["is_available"] = False
+
+    return {
+        "message": "Booking confirmed",
+        "booking": booking
+    }
+
+@app.get("/bookings")
+def get_bookings():
+    return bookings
