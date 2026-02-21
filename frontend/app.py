@@ -73,3 +73,26 @@ if st.button("Cancel Booking"):
             st.success(data["message"])
     else:
         st.error("Failed to cancel booking")
+
+st.subheader("Complete a Booking")
+
+complete_booking_id = st.number_input(
+    "Booking ID to complete",
+    min_value=1,
+    step=1,
+    key="complete"
+)
+
+if st.button("Complete Booking"):
+    response = requests.put(
+        f"{BASE_URL}/bookings/{complete_booking_id}/complete"
+    )
+
+    if response.status_code == 200:
+        data = response.json()
+        if "error" in data:
+            st.error(data["error"])
+        else:
+            st.success(data["message"])
+    else:
+        st.error("Failed to complete booking")
