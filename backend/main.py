@@ -58,3 +58,33 @@ def create_booking(request: BookingRequest):
 @app.get("/bookings")
 def get_bookings():
     return bookings
+
+@app.delete("/bookings/{booking_id}")
+def cancel_booking(booking_id: int):
+
+    booking_to_cancel = None
+
+    # 1. Find booking by ID
+    for booking in bookings:
+        if booking["id"] == booking_id:
+            booking_to_cancel = booking
+            break
+
+    # 2. Booking not found
+    if booking_to_cancel is None:
+        return {"error": "Booking not found"}
+
+    # 3. If already cancelled
+    if booking_to_cancel["status"] == "cancelled":
+        return {"message": "Booking already cancelled"}
+
+    # 4. Cancel booking
+    booking_to_cancel["status"] = "cancelled"
+
+    # 5. Mark cab as available again
+    for cab in cabs:
+        if cab["id"] == booking_to_cancel["cab_id"]:
+            cab["is_available"] = True
+            break
+
+    return {"message": "Booking cancelled successfully"}
