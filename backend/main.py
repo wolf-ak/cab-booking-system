@@ -88,3 +88,33 @@ def cancel_booking(booking_id: int):
             break
 
     return {"message": "Booking cancelled successfully"}
+
+@app.put("/bookings/{booking_id}/complete")
+def complete_booking(booking_id: int):
+
+    booking_to_complete = None
+
+    # 1. Find booking
+    for booking in bookings:
+        if booking["id"] == booking_id:
+            booking_to_complete = booking
+            break
+
+    # 2. Booking not found
+    if booking_to_complete is None:
+        return {"error": "Booking not found"}
+
+    # 3. Only active bookings can be completed
+    if booking_to_complete["status"] != "active":
+        return {"error": "Only active bookings can be completed"}
+
+    # 4. Mark booking as completed
+    booking_to_complete["status"] = "completed"
+
+    # 5. Free the cab
+    for cab in cabs:
+        if cab["id"] == booking_to_complete["cab_id"]:
+            cab["is_available"] = True
+            break
+
+    return {"message": "Booking completed successfully"}
