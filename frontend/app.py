@@ -51,3 +51,25 @@ if st.button("Load Bookings"):
             st.table(bookings)
     else:
         st.error("Failed to load booking history")
+
+st.subheader("Cancel a Booking")
+
+cancel_booking_id = st.number_input(
+    "Booking ID to cancel",
+    min_value=1,
+    step=1
+)
+
+if st.button("Cancel Booking"):
+    response = requests.delete(
+        f"{BASE_URL}/bookings/{cancel_booking_id}"
+    )
+
+    if response.status_code == 200:
+        data = response.json()
+        if "error" in data:
+            st.error(data["error"])
+        else:
+            st.success(data["message"])
+    else:
+        st.error("Failed to cancel booking")
